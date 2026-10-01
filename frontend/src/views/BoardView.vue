@@ -494,6 +494,17 @@ async function toggleEventExpand(ev, i) {
   }
 }
 
+function sweepEngineLabel(name) {
+  return ({
+    fofa: "FOFA",
+    quake: "360 Quake",
+    hunter: "Hunter",
+    zoomeye: "ZoomEye",
+    shodan: "Shodan",
+    censys: "Censys",
+  })[name] || name || "测绘";
+}
+
 // 把任意事件格式化为一句人话（worker 动作事件本身没有 message）
 function fmtEvent(ev) {
   if (ev.message) return ev.message;
@@ -515,7 +526,7 @@ function fmtEvent(ev) {
     case "review_cancelled": return `审核已取消`;
     case "reproduce_start": return `复现验证: ${d.title || ""}`;
     case "reproduce_done": return `复现${d.reproduced ? "成功" : "未证实"}: ${d.title || ""}`;
-    case "killsweep_start": return `通杀 Hunter 启动：${d.title || ""}`;
+    case "killsweep_start": return `通杀启动（${sweepEngineLabel(d.engine || task.value?.engine)}）：${d.title || ""}`;
     case "killsweep_done": return `通杀分析完成：${d.product || ""} · ${d.is_killsweep ? "可通杀" : "不可通杀"}`;
     case "killsweep_error": return `通杀分析异常: ${(d.error || "").slice(0, 120)}`;
     case "killsweep_dedup": return `通杀分析去重：${d.product || ""}`;
@@ -998,7 +1009,7 @@ function assetRows(k) {
       host: "",
       vuln_title: k.vuln_summary || k.origin_title || "通杀验证目标",
       status: k.verified ? "verified" : "candidate",
-      evidence: k.verified ? "通杀 Hunter 已验证" : "通杀 Hunter 圈定候选",
+      evidence: k.verified ? "通杀已验证" : "通杀圈定候选",
     }];
   }
   return [];

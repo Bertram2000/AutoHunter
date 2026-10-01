@@ -3171,10 +3171,15 @@ class TaskRunner:
                 session.add(row)
             await session.commit()
             await session.refresh(row)
+            task = await session.get(Task, task_id)
+            engine_name = resolve_engine_config(task).get("engine") or "fofa"
+            from app.engines.sync import engine_display_name
+            disp = engine_display_name(engine_name)
             await self._log(
                 session, "killsweep", "killsweep_start",
-                f"通杀 Hunter 启动：{f.title or finding_id}",
+                f"通杀启动（{disp}）：{f.title or finding_id}",
                 finding_id=finding_id, killsweep_id=row.id, title=f.title or "",
+                engine=engine_name,
             )
             return row.id
 
@@ -3345,7 +3350,7 @@ class TaskRunner:
                 "vuln_type": finding_dict["vuln_type"],
                 "vuln_title": finding_dict["title"],
                 "status": "verified" if res.get("verified") else "candidate",
-                "evidence": "通杀 Hunter 实打验证站点" if res.get("verified") else "通杀 Hunter 圈定候选",
+                "evidence": "通杀实打验证站点" if res.get("verified") else "通杀圈定候选",
                 "dedup_key": hashlib.md5(
                     f"killsweep|{vhost}|{finding_dict['vuln_type'].lower()}|{finding_dict['title']}".encode()
                 ).hexdigest(),
